@@ -77,7 +77,7 @@ namespace C_
             }
 
             var orderedTransactions = transactions.OrderBy(x => x.Time).ToList();
-            List<string> transactionIds = new List<string>();
+            var transactionIds = new HashSet<Tuple<string,string>>();
             var validTransactions = orderedTransactions.Where(x => Validate(x, transactionIds)).ToList();
 
 
@@ -99,13 +99,15 @@ namespace C_
                 sb.Append(t.Text).Append(Environment.NewLine);
             }
 
-            File.WriteAllText("level3-3.txt", sb.ToString());
+            File.WriteAllText("level3-4.txt", sb.ToString());
 
         }
 
-        public static bool Validate(Transaction transaction, List<string> transactionPool){
+        public static bool Validate(Transaction transaction, HashSet<Tuple<string,string>> transactionPool){
 
-            //Check every Amount >= 0
+            System.Console.WriteLine(transaction.Id + " - " + string.Join(", ", transactionPool));
+
+            //Check every Amount > 0
             if(transaction.Input.Any(x => x.Amount <= 0) || 
                transaction.Output.Any(x => x.Amount <= 0)){
                     return false;
@@ -113,7 +115,7 @@ namespace C_
             
             foreach(var input in transaction.Input)
             {
-                if(!transactionPool.Contains(input.Id) && input.Owner != "origin")
+                if(!transactionPool.Contains(new Tuple<string, string>(input.Owner,input.Id)) && input.Owner != "origin")
                 {
                     return false;
                 }
@@ -137,11 +139,18 @@ namespace C_
             {
                 if(input.Owner != "origin")
                 {
-                    transactionPool.Remove(input.Id);
+                    bool removed = transactionPool.Remove(new Tuple<string,string>(input.Owner, input.Id));
+                    if(!removed) System.Console.WriteLine("NOT REMOVED: " + transaction.Id);
                 }
             }
 
-            transactionPool.Add(transaction.Id);
+            foreach(var output in transaction.Output)
+            {
+                bool added = transactionPool.Add(new Tuple<string,string>(output.Owner, transaction.Id));
+                if(!added) System.Console.WriteLine("ALREADY EXISTS: " + transaction.Id);
+            }
+            
+            
             return true;
         }
 
