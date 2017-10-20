@@ -1,0 +1,8 @@
+/home/dms/Schreibtisch/CCC/coco1710/L1/C#/bin/Debug/netcoreapp1.1/C#.deps.json
+/home/dms/Schreibtisch/CCC/coco1710/L1/C#/bin/Debug/netcoreapp1.1/C#.runtimeconfig.json
+/home/dms/Schreibtisch/CCC/coco1710/L1/C#/bin/Debug/netcoreapp1.1/C#.runtimeconfig.dev.json
+/home/dms/Schreibtisch/CCC/coco1710/L1/C#/bin/Debug/netcoreapp1.1/C#.dll
+/home/dms/Schreibtisch/CCC/coco1710/L1/C#/bin/Debug/netcoreapp1.1/C#.pdb
+/home/dms/Schreibtisch/CCC/coco1710/L1/C#/obj/Debug/netcoreapp1.1/C#.AssemblyInfo.cs
+/home/dms/Schreibtisch/CCC/coco1710/L1/C#/obj/Debug/netcoreapp1.1/C#.dll
+/home/dms/Schreibtisch/CCC/coco1710/L1/C#/obj/Debug/netcoreapp1.1/C#.pdb
