@@ -76,36 +76,71 @@ namespace C_
                 transactions.Add(tr);
             }
 
+            int numberOfRequests = int.Parse(Console.ReadLine());
+            List<Transaction> requests = new List<Transaction>(numberOfRequests);
+            for(int i = 0; i < numberOfRequests; i++)
+            {
+                string line = Console.ReadLine();
+                string[] tmp = line.Split(' ');
+                string id = tmp[0].Trim();
+                string fromOwner = tmp[1].Trim();
+                string toOwner = tmp[2].Trim();
+                long amount  = long.Parse(tmp[3].Trim());
+                long time  = long.Parse(tmp[4].Trim());
+
+                Transaction t = new Transaction{Id = id, FromOwner = fromOwner, ToOwner = toOwner, 
+                                                Amount = amount, Time = time, Text=line};
+                requests.Add(t);
+            }
+
+            var orderedRequests = requests.OrderBy(x => x.Time).ToList();
             var orderedTransactions = transactions.OrderBy(x => x.Time).ToList();
             var transactionIds = new HashSet<Tuple<string,string>>();
-            var validTransactions = orderedTransactions.Where(x => Validate(x, transactionIds)).ToList();
-
+            var validTransactions = ValidateNew(orderedTransactions, orderedRequests);   //orderedTransactions.Where(x => Validate(x, transactionIds)).ToList();
 
             StringBuilder sb = new StringBuilder();
             sb.Append(validTransactions.Count).Append(Environment.NewLine);
             foreach(var t in validTransactions)
             {
-                /*sb.Append(t.Id).Append(" ").Append(t.Input.Count)
-                .Append(" ");
-                foreach(var input in t.Input){
-                    sb.Append(input.Id).Append(" ").Append(input.Owner).Append(" ")
-                    .Append(input.Amount);
-                }
-                sb.Append(" ").Append(t.Output.Count).Append(" ");
-                foreach(var output in t.Output){
-                    sb.Append(output.Owner).Append(" ")
-                    .Append(output.Amount);
-                }*/
                 sb.Append(t.Text).Append(Environment.NewLine);
             }
 
-            File.WriteAllText("level3-4.txt", sb.ToString());
+            File.WriteAllText("level4-1.txt", sb.ToString());
 
+        }
+
+        public static List<Transaction> ValidateNew(List<Transaction> all, List<Transaction> requests)
+        {
+            List<Transaction> result = new List<Transaction>();
+            var transactionPool = new HashSet<Tuple<string, string>>();
+
+            foreach(var transaction in all)
+            {
+                var newerRequests = requests.Where(x => x.Time < transaction.Time);
+                if(newerRequests.Any())
+                {
+                    foreach(Transaction request in newerRequests)
+                    {
+                        if(result.Any(x => x.Output.Any(o => o.Owner == request.FromOwner && o.Amount >= request.Amount))){
+                            Transaction newTransaction = new Transaction
+                            {
+
+                            };
+                        }
+                    }
+                }
+                
+                if(Validate(transaction, transactionPool))
+                {
+                    result.Add(transaction);
+                }
+            }
+            return result;
         }
 
         public static bool Validate(Transaction transaction, HashSet<Tuple<string,string>> transactionPool){
 
-            System.Console.WriteLine(transaction.Id + " - " + string.Join(", ", transactionPool));
+            //System.Console.WriteLine(transaction.Id + " - " + string.Join(", ", transactionPool));
 
             //Check every Amount > 0
             if(transaction.Input.Any(x => x.Amount <= 0) || 

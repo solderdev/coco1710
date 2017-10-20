@@ -15,6 +15,10 @@ namespace C_
 
         public string Owner {get; set;}
 
+        public string FromOwner {get; set;}
+
+        public string ToOwner {get; set;}
+
         public long Amount {get;set;}
 
         public long Time {get;set;}
