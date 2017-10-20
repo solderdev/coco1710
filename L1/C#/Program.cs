@@ -12,7 +12,7 @@ namespace C_
         {
             //Console.WriteLine("Hello World!");
 
-            int numberOfAccounts = int.Parse(Console.ReadLine());
+            /*int numberOfAccounts = int.Parse(Console.ReadLine());
 
             List<Account> accounts = new List<Account>(numberOfAccounts);
             for(int i = 0; i < numberOfAccounts; i++)
@@ -24,104 +24,126 @@ namespace C_
                 long limit = long.Parse(tmp[3].Trim());
                 Account a = new Account{User = person, Balance = balance, AccountNumber = accountNumber, Limit = limit};
                 accounts.Add(a);
-            }
+            }*/
 
             //Filter invalid account
-            accounts = accounts.Where(x => Validate(x.AccountNumber)).ToList();
+            //accounts = accounts.Where(x => Validate(x.AccountNumber)).ToList();
 
             int numberOfTransactions = int.Parse(Console.ReadLine());
             List<Transaction> transactions = new List<Transaction>(numberOfTransactions);
             for(int i = 0; i < numberOfTransactions; i++)
             {
-                string[] tmp = Console.ReadLine().Split(' ');
-                string personFrom = tmp[0].Trim();
-                string personTo = tmp[1].Trim();
-                long amount  = long.Parse(tmp[2].Trim());
-                long time  = long.Parse(tmp[3].Trim());
-                Transaction t = new Transaction{From = personFrom, To = personTo, Amount = amount, Time = time};
-                transactions.Add(t);
-            }
+                int index = 0;
+                string line = Console.ReadLine();
+                string[] tmp = line.Split(' ');
+                string id = tmp[index].Trim();
+                index++;
 
-            var orderedTransactions = transactions.OrderBy(x => x.Time);
-            foreach(var t in orderedTransactions)
-            {
-                var fromAccount = accounts.Where(x => x.AccountNumber == t.From).FirstOrDefault();
-                var toAccount = accounts.Where(x => x.AccountNumber == t.To).FirstOrDefault();
+                int numberOfInputs = int.Parse(tmp[index].Trim());
+                index++;
 
-                //Check if accounts are valid
-                if(fromAccount != null && toAccount != null){
-                    long maxMoney = fromAccount.Balance + fromAccount.Limit;
-                    if(maxMoney >= t.Amount)
-                    {
-                        fromAccount.Balance -= t.Amount;
-                        toAccount.Balance += t.Amount;
-                    }
+                List<Transaction> inputs = new List<Transaction>();
+                for(int inp = 0; inp < numberOfInputs; inp++)
+                {
+                    string t_id = tmp[index].Trim();
+                    index++;
+                    string owner = tmp[index].Trim();
+                    index++;
+                    long amount = long.Parse(tmp[index].Trim());
+                    index++;
+
+                    Transaction t = new Transaction{Id = t_id, Owner = owner, Amount = amount};
+                    inputs.Add(t);
                 }
+
+                int numberOfOutputs = int.Parse(tmp[index].Trim());
+                index++;
+
+                List<Transaction> outputs = new List<Transaction>();
+                for(int o = 0; o < numberOfOutputs; o++)
+                {
+                    string owner = tmp[index].Trim();
+                    index++;
+                    long amount = long.Parse(tmp[index].Trim());
+                    index++;
+
+                    Transaction t = new Transaction{Owner = owner, Amount = amount};
+                    outputs.Add(t);
+                }
+
+                long time  = long.Parse(tmp[index].Trim());
+                Transaction tr = new Transaction{Id = id, Input = inputs, Output = outputs, Time = time, Text = line};
+                transactions.Add(tr);
             }
+
+            var orderedTransactions = transactions.OrderBy(x => x.Time).ToList();
+            List<string> transactionIds = new List<string>();
+            var validTransactions = orderedTransactions.Where(x => Validate(x, transactionIds)).ToList();
+
 
             StringBuilder sb = new StringBuilder();
-            sb.Append(accounts.Count).Append(Environment.NewLine);
-            foreach(var a in accounts)
+            sb.Append(validTransactions.Count).Append(Environment.NewLine);
+            foreach(var t in validTransactions)
             {
-                sb.Append(a.User).Append(" ").Append(a.Balance).Append(Environment.NewLine);
+                /*sb.Append(t.Id).Append(" ").Append(t.Input.Count)
+                .Append(" ");
+                foreach(var input in t.Input){
+                    sb.Append(input.Id).Append(" ").Append(input.Owner).Append(" ")
+                    .Append(input.Amount);
+                }
+                sb.Append(" ").Append(t.Output.Count).Append(" ");
+                foreach(var output in t.Output){
+                    sb.Append(output.Owner).Append(" ")
+                    .Append(output.Amount);
+                }*/
+                sb.Append(t.Text).Append(Environment.NewLine);
             }
 
-            File.WriteAllText("level2-4.txt", sb.ToString());
+            File.WriteAllText("level3-3.txt", sb.ToString());
 
         }
 
-        public static bool Validate(string accountNumber)
-        {
-            if(string.IsNullOrWhiteSpace(accountNumber))
-            {
-                return false;
-            }
-            if(accountNumber.Length != 15)
-                return false;
-            if(!accountNumber.StartsWith("CAT"))
-                return false;
-            
-            char check1 = accountNumber[3];
-            char check2 = accountNumber[4];
+        public static bool Validate(Transaction transaction, List<string> transactionPool){
 
-            int check = int.Parse(check1.ToString() + check2.ToString());
-
-            if(!char.IsDigit(check1) || !char.IsDigit(check2))
-                return false;
-
-
-            string ban = accountNumber.Substring(5);
-            if(ban.Any(x => !char.IsLetter(x)))
-                return false;
-
-            System.Console.WriteLine("Checking :" + ban);
-            var distinctChars = ban.Skip(5).Distinct();
-            foreach(char c in distinctChars)
-            {
-                int count1 = 66;
-                int count2 = 99;
-                if(char.IsUpper(c))
-                {
-                    count1 = ban.Count(x => x == c);
-                    count2 = ban.Count(x => x == char.ToLower(c));
-                }
-                else{
-                    count1 = ban.Count(x => x == c);
-                    count2 = ban.Count(x => x == char.ToUpper(c));
-                }
-
-                if(count1 != count2)
+            //Check every Amount >= 0
+            if(transaction.Input.Any(x => x.Amount <= 0) || 
+               transaction.Output.Any(x => x.Amount <= 0)){
                     return false;
             }
+            
+            foreach(var input in transaction.Input)
+            {
+                if(!transactionPool.Contains(input.Id) && input.Owner != "origin")
+                {
+                    return false;
+                }
+            }
 
-            string calcChecksum = ban + "CAT00";
-            int sum = calcChecksum.Sum(x => (int)x);
-            System.Console.WriteLine($"Sum of {calcChecksum} = {sum}");
-            int remain = sum % 97;
-            if((98 - remain) != check)
-                return false;
+            long sum1 = transaction.Input.Sum(x => x.Amount);
+            long sum2 = transaction.Output.Sum(x => x.Amount);
 
+            if(sum1 != sum2) return false;
+
+            //Check output unique owners
+            bool isUnique = transaction.Output.Select(x => x.Owner).Distinct().Count() == transaction.Output.Select(x => x.Owner).Count();
+            if(!isUnique) return false;
+
+            //Check input unique IDs
+            bool isUniqueId = transaction.Input.Select(x => x.Id).Distinct().Count() == transaction.Input.Select(x => x.Id).Count();
+            if(!isUniqueId) return false;
+
+
+            foreach(var input in transaction.Input)
+            {
+                if(input.Owner != "origin")
+                {
+                    transactionPool.Remove(input.Id);
+                }
+            }
+
+            transactionPool.Add(transaction.Id);
             return true;
         }
+
     }
 }
