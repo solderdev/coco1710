@@ -53,7 +53,7 @@ namespace C_
                 sb.Append(a.User).Append(" ").Append(a.Balance).Append(Environment.NewLine);
             }
 
-            File.WriteAllText("l1.txt", sb.ToString());
+            File.WriteAllText("level1-4.txt", sb.ToString());
 
         }
     }
