@@ -27,7 +27,7 @@ namespace C_
             }
 
             //Filter invalid account
-            accounts = accounts.Where(x => AccountValidator.Validate(x.AccountNumber)).ToList();
+            accounts = accounts.Where(x => Account.Validate(x.AccountNumber)).ToList();
 
             int numberOfTransactions = int.Parse(Console.ReadLine());
             List<Transaction> transactions = new List<Transaction>(numberOfTransactions);
@@ -51,7 +51,7 @@ namespace C_
                 //Check if accounts are valid
                 if(fromAccount != null && toAccount != null){
                     long maxMoney = fromAccount.Balance + fromAccount.Limit;
-                    if(maxMoney <= t.Amount)
+                    if(maxMoney > t.Amount)
                     {
                         fromAccount.Balance -= t.Amount;
                         toAccount.Balance += t.Amount;
@@ -60,13 +60,13 @@ namespace C_
             }
 
             StringBuilder sb = new StringBuilder();
-            sb.Append(numberOfAccounts).Append(Environment.NewLine);
+            sb.Append(accounts.Count).Append(Environment.NewLine);
             foreach(var a in accounts)
             {
                 sb.Append(a.User).Append(" ").Append(a.Balance).Append(Environment.NewLine);
             }
 
-            File.WriteAllText("level2-1.txt", sb.ToString());
+            File.WriteAllText("level2-3.txt", sb.ToString());
 
         }
 
@@ -84,21 +84,35 @@ namespace C_
             char check1 = accountNumber[3];
             char check2 = accountNumber[4];
 
+            int check = int.Parse(check1.ToString() + check2.ToString());
+
             if(!char.IsDigit(check1) || !char.IsDigit(check2))
                 return false;
 
-            System.Console.WriteLine("Checking :" + accountNumber);
-            var distinctChars = accountNumber.Skip(5).Distinct();
+
+            string ban = accountNumber.Substring(5);
+            if(ban.Any(x => !char.IsLetter(x)))
+                return false;
+
+            System.Console.WriteLine("Checking :" + ban);
+            var distinctChars = ban.Skip(5).Distinct();
             foreach(char c in distinctChars)
             {
                 System.Console.WriteLine("Checking Letter: " + c);
-                int count1 = accountNumber.Count(x => x == c);
+                int count1 = ban.Count(x => x == c);
                 System.Console.WriteLine("Found: " + count1);
-                int count2 = accountNumber.Count(x => x == char.ToUpper(c));
+                int count2 = ban.Count(x => x == char.ToUpper(c));
                 System.Console.WriteLine("Found Upper: " + count2);
                 if(count1 != count2)
                     return false;
             }
+
+            string calcChecksum = ban + "CAT00";
+            int sum = calcChecksum.Sum(x => (int)x);
+            System.Console.WriteLine($"Sum of {calcChecksum} = {sum}");
+            int remain = sum % 97;
+            if((98 - remain) != check)
+                return false;
 
             return true;
         }
