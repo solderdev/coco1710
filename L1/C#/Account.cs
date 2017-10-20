@@ -10,7 +10,7 @@ namespace C_
         public string AccountNumber {get;set;}
         public long Limit {get;set;}
 
-        public static bool Validate(string accountNumber)
+        /*public static bool Validate(string accountNumber)
         {
             if(string.IsNullOrWhiteSpace(accountNumber))
                 return false;
@@ -69,7 +69,7 @@ namespace C_
                 return false;
 
             return true;
-        }
+        }*/
 
     
     }

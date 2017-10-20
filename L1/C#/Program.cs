@@ -27,7 +27,7 @@ namespace C_
             }
 
             //Filter invalid account
-            accounts = accounts.Where(x => Account.Validate(x.AccountNumber)).ToList();
+            accounts = accounts.Where(x => Validate(x.AccountNumber)).ToList();
 
             int numberOfTransactions = int.Parse(Console.ReadLine());
             List<Transaction> transactions = new List<Transaction>(numberOfTransactions);
@@ -51,7 +51,7 @@ namespace C_
                 //Check if accounts are valid
                 if(fromAccount != null && toAccount != null){
                     long maxMoney = fromAccount.Balance + fromAccount.Limit;
-                    if(maxMoney > t.Amount)
+                    if(maxMoney >= t.Amount)
                     {
                         fromAccount.Balance -= t.Amount;
                         toAccount.Balance += t.Amount;
@@ -66,7 +66,7 @@ namespace C_
                 sb.Append(a.User).Append(" ").Append(a.Balance).Append(Environment.NewLine);
             }
 
-            File.WriteAllText("level2-3.txt", sb.ToString());
+            File.WriteAllText("level2-4.txt", sb.ToString());
 
         }
 
@@ -98,11 +98,18 @@ namespace C_
             var distinctChars = ban.Skip(5).Distinct();
             foreach(char c in distinctChars)
             {
-                System.Console.WriteLine("Checking Letter: " + c);
-                int count1 = ban.Count(x => x == c);
-                System.Console.WriteLine("Found: " + count1);
-                int count2 = ban.Count(x => x == char.ToUpper(c));
-                System.Console.WriteLine("Found Upper: " + count2);
+                int count1 = 66;
+                int count2 = 99;
+                if(char.IsUpper(c))
+                {
+                    count1 = ban.Count(x => x == c);
+                    count2 = ban.Count(x => x == char.ToLower(c));
+                }
+                else{
+                    count1 = ban.Count(x => x == c);
+                    count2 = ban.Count(x => x == char.ToUpper(c));
+                }
+
                 if(count1 != count2)
                     return false;
             }
