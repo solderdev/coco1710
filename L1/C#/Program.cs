@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.IO;
+using System.Text;
 
 namespace C_
 {
@@ -7,7 +10,7 @@ namespace C_
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            //Console.WriteLine("Hello World!");
 
             int numberOfAccounts = int.Parse(Console.ReadLine());
 
@@ -32,6 +35,26 @@ namespace C_
                 Transaction t = new Transaction{From = personFrom, To = personTo, Amount = amount, Time = time};
                 transactions.Add(t);
             }
+
+            var orderedTransactions = transactions.OrderBy(x => x.Time);
+            foreach(var t in orderedTransactions)
+            {
+                var fromAccount = accounts.Where(x => x.User == t.From).First();
+                var toAccount = accounts.Where(x => x.User == t.To).First();
+
+                fromAccount.Balance -= t.Amount;
+                toAccount.Balance += t.Amount;
+            }
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append(numberOfAccounts).Append(Environment.NewLine);
+            foreach(var a in accounts)
+            {
+                sb.Append(a.User).Append(" ").Append(a.Balance).Append(Environment.NewLine);
+            }
+
+            File.WriteAllText("l1.txt", sb.ToString());
+
         }
     }
 }
